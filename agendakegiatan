@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Kegiatan Inspektorat NTB - 18 November 2025</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the table */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .table-header {
+            background-color: #2563EB; /* Blue-700 */
+            color: white;
+        }
+        .table-row:nth-child(even) {
+            background-color: #f3f4f6; /* Gray-100 */
+        }
+        .table-row:hover {
+            background-color: #e5e7eb; /* Gray-200 */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div id="app" class="container mx-auto bg-white shadow-xl rounded-xl p-4 sm:p-8">
+        <header class="mb-6 border-b pb-4">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">Agenda Kegiatan </h1>
+            <p class="text-xl text-blue-600 font-semibold mt-1">Hari/Tanggal: Selasa, 18 November 2025</p>
+            <p class="text-gray-500 text-sm">Inspektorat Provinsi Nusa Tenggara Barat</p>
+        </header>
+
+        <!-- Kontrol Pencarian dan Filter -->
+        <div class="mb-6 flex flex-col md:flex-row gap-4 items-center">
+            
+            <div class="w-full md:w-1/2">
+                <label for="search" class="sr-only">Cari Kegiatan</label>
+                <input type="text" id="search" placeholder="Ketik kata kunci untuk mencari kegiatan..."
+                    class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+            </div>
+
+            <div class="w-full md:w-1/2">
+                <label for="filter" class="sr-only">Filter Unit Kerja</label>
+                <select id="filter"
+                    class="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    <option value="">-- Filter Berdasarkan Unit Kerja/Pejabat --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabel Agenda -->
+        <div class="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr class="table-header text-sm uppercase tracking-wider">
+                        <th class="px-4 py-3 text-left w-12">No.</th>
+                        <th class="px-4 py-3 text-left w-1/4">Unit Kerja / Pejabat</th>
+                        <th class="px-4 py-3 text-left w-2/5">Kegiatan</th>
+                        <th class="px-4 py-3 text-left w-1/4">Keterangan / Lokasi / Waktu</th>
+                    </tr>
+                </thead>
+                <tbody id="agenda-body" class="bg-white divide-y divide-gray-200">
+                    <!-- Data akan diisi oleh JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="no-results" class="hidden text-center p-8 text-lg text-gray-500">
+            <p>Tidak ada kegiatan yang ditemukan.</p>
+        </div>
+    </div>
+
+    <script>
+        // Data Agenda Kegiatan yang diekstrak dari PDF
+        const agendaData = [
+            { no: 1, unit: "Inspektorat / Inspektur", kegiatan: "Rapat Koordinasi Pembentukan Satgas Optimalisasi Pemanfaatan Barang Milik Daerah.", keterangan: "Gedung Sangkareang, Pukul: 14.30 WITA;" },
+            { no: 2, unit: "Sekretariat / Sekretaris", kegiatan: "Konsultasi hasil Rapat Koordinasi Tim Pembahasan Tunjangan Penghasilan Pegawai (TPP) Pemprov. NTB;", keterangan: "Ditjen Bina Keuangan Daerah Jakarta, tanggal 18-21 November 2025;" },
+            { no: 2, unit: "Sekretariat / Sekretaris", kegiatan: "Lanjut Tindak Penyelesaian Laporan Hasil Pemeriksaan BPK Perwakilan NTB;", keterangan: "Perangkat daerah lingkup Provinsi NTB;" },
+            { no: 3, unit: "Itban 1 / Irban I", kegiatan: "Konsultasi hasil Rapat Koordinasi Tim Pembahasan Tunjangan Penghasilan Pegawai (TPP) Pemprov. NTB;", keterangan: "Ditjen Bina Keuangan Daerah Jakarta, tanggal 18-21 November 2025;" },
+            { no: 3, unit: "Itban 1 / Irban I", kegiatan: "Pemeriksaan dengan tujuan tertentu (PDTT) atas Hibah Pemerintah Provinsi NTB Tahun 2025 pada Dinas Pendidikan dan Kebudayaan Provinsi NTB.", keterangan: "Tanggal 6 s/d 21 November 2025." },
+            { no: 4, unit: "Itban 2 / Irban 2", kegiatan: "Monitoring dan Tindak Lanjut Reviu Rancangan Akhir Perubahan RKPD Provinsi NTB Tahun 2025.", keterangan: "Tanggal 17 s/d 25 November 2025." },
+            { no: 5, unit: "Itban 3 / Irban 3", kegiatan: "Audit Kinerja Sasaran Strategis Meningkatnya Ketahanan Iklim dan Ketangguhan Menghadapi Risiko Bencana pada Pemerintah Provinsi NTB.", keterangan: "Tanggal 5 November s/d 9 Desember 2025;" },
+            { no: 6, unit: "Itban 4 / Irban 4", kegiatan: "Menyaksikan rangkaian kegiatan Penandatanganan Kesepakatan Bersama Pengampu Sasaran dan Agenda Reformasi Birokrasi (RB) Nasional 2025-2029 dan Forum Diskusi RB Nasional via kanal Youtube;", keterangan: "Ruang kerja Itban IV, Pukul: 09.30 WITA;" },
+            { no: 6, unit: "Itban 4 / Irban 4", kegiatan: "Pengawasan Pengendalian Inflasi Daerah Tahun 2025;", keterangan: "Tanggal 01 s/d 28 November 2025;" },
+            { no: 6, unit: "Itban 4 / Irban	 4", kegiatan: "Audit Kinerja dengan Tema Meningkatnya Kemandirian Fiskal Daerah.", keterangan: "Tanggal 12 Oktober s/d 18 November 2025." },
+            { no: 7, unit: "Itbansus / Irbansus", kegiatan: "Lanjutan Audit Dengan Tujuan Tertentu terhadap Pengelolaan Belanja Hibah Dinas Pemuda dan Olahraga Provinsi NTB Tahun 2021, 2022 dan 2023;", keterangan: "Tanggal 03 s/d 21 November 2025;" },
+            { no: 7, unit: "Itbansus / Irbansus", kegiatan: "Monev Tindak Lanjut Indeks Efektifitas Pengendalian Korupsi (IEPK) Tahun 2024;", keterangan: "Tanggal 3 s/d 20 November 2025;" },
+            { no: 7, unit: "Itbansus / Irbansus", kegiatan: "Reschedule rapat ekspose dengan Dinas PUPR terkait Probity Audit Tahap Pelaksanaan pada Pekerjaan Optimalisasi Landfill 2 TPAPR Kebon Kango di Kab. Lombok Barat pd Dinas PUPR Prov NTB TA 2025;", keterangan: "Ruang rapat Inspektur pukul: 11.00 s/d selesai;" },
+            { no: 7, unit: "Itbansus / Irbansus", kegiatan: "Mewakili Inspektur Prov NTB sebagai Tim Penilaian Program Percontohan Kab/Kota Anti Korupsi.", keterangan: "Kantor Walikota Mataram, Pukul: 08.30 s/d selesai." }
+        ];
+
+        const agendaBody = document.getElementById('agenda-body');
+        const searchInput = document.getElementById('search');
+        const filterSelect = document.getElementById('filter');
+        const noResults = document.getElementById('no-results');
+
+        // 1. Inisialisasi Filter Unit Kerja
+        function populateFilter() {
+            const units = new Set(agendaData.map(item => item.unit));
+            units.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = unit;
+                filterSelect.appendChild(option);
+            });
+        }
+
+        // 2. Fungsi untuk Render Tabel
+        function renderTable(data) {
+            agendaBody.innerHTML = ''; // Kosongkan tabel
+            if (data.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('table-row', 'text-gray-700', 'text-sm');
+                
+                // Pisahkan Unit Kerja dan Pejabat untuk tampilan yang lebih baik
+                const [unitKerja, pejabat] = item.unit.includes(' / ') ? item.unit.split(' / ') : [item.unit, ''];
+
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-semibold">${item.no}.</td>
+                    <td class="px-4 py-3">
+                        <p class="font-medium">${unitKerja.trim()}</p>
+                        ${pejabat ? `<p class="text-xs italic text-gray-500">${pejabat.trim()}</p>` : ''}
+                    </td>
+                    <td class="px-4 py-3">${item.kegiatan}</td>
+                    <td class="px-4 py-3 text-xs text-gray-600">${item.keterangan.replace(/;/g, ' &bullet;').replace(/Pukul:/g, 'Pkl.')}</td>
+                `;
+                agendaBody.appendChild(row);
+            });
+        }
+
+        // 3. Fungsi Filter Utama
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedUnit = filterSelect.value;
+
+            const filteredData = agendaData.filter(item => {
+                const matchesSearch = item.kegiatan.toLowerCase().includes(searchTerm) || 
+                                      item.keterangan.toLowerCase().includes(searchTerm) ||
+                                      item.unit.toLowerCase().includes(searchTerm);
+
+                const matchesUnit = selectedUnit === '' || item.unit === selectedUnit;
+
+                return matchesSearch && matchesUnit;
+            });
+
+            renderTable(filteredData);
+        }
+
+        // 4. Tambahkan Event Listeners
+        searchInput.addEventListener('input', applyFilters);
+        filterSelect.addEventListener('change', applyFilters);
+
+        // 5. Inisialisasi Aplikasi
+        window.onload = () => {
+            populateFilter();
+            applyFilters(); // Tampilkan semua data saat pertama kali dimuat
+        };
+
+    </script>
+</body>
+</html>
